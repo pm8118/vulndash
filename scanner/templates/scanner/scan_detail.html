@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}جزئیات اسکن {{ scan.id }} - VulnDash{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-search"></i> جزئیات اسکن #{{ scan.id }}</h2>
+    <a href="{% url 'scanner:scan_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-dark text-white">اطلاعات اسکن</div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr><th>هدف:</th><td><code>{{ scan.target }}</code></td></tr>
+                    <tr><th>نوع:</th><td>{{ scan.get_scan_type_display }}</td></tr>
+                    <tr><th>وضعیت:</th><td>
+                        <span class="status-{{ scan.status }}">
+                            {{ scan.get_status_display }}
+                        </span>
+                    </td></tr>
+                    <tr><th>شروع:</th><td>{{ scan.started_at|date:"Y/m/d H:i:s" }}</td></tr>
+                    <tr><th>پایان:</th><td>{{ scan.finished_at|date:"Y/m/d H:i:s"|default:"—" }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">خلاصه نتایج</div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3>{{ scan.hosts.count }}</h3>
+                        <small class="text-muted">هاست</small>
+                    </div>
+                    <div class="col-4">
+                        <h3>{{ scan.hosts.all|length }}</h3>
+                        <small class="text-muted">پورت</small>
+                    </div>
+                    <div class="col-4">
+                        <h3>0</h3>
+                        <small class="text-muted">آسیب‌پذیری</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if scan.hosts.all %}
+<h4 class="mt-4">هاست‌های کشف‌شده</h4>
+{% for host in scan.hosts.all %}
+<div class="card mb-2">
+    <div class="card-body">
+        <h5><i class="bi bi-pc-display"></i> <code>{{ host.ip_address }}</code></h5>
+        {% if host.hostname %}<p>نام: {{ host.hostname }}</p>{% endif %}
+        {% if host.os_family %}<p>سیستم عامل: {{ host.os_family }}</p>{% endif %}
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="alert alert-info mt-4">
+    <i class="bi bi-info-circle"></i> هنوز نتیجه‌ای وجود نداره. اسکن در صف اجراست.
+</div>
+{% endif %}
+{% endblock %}
