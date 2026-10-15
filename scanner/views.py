@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Scan
 from .forms import ScanForm
+from .tasks import run_scan
 
 
 class ScanListView(LoginRequiredMixin, ListView):
@@ -28,8 +29,11 @@ class ScanCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.status = 'pending'
-        messages.success(self.request, 'اسکن با موفقیت ساخته شد!')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        # اجرای اسکن async
+        run_scan.delay(self.object.id)
+        messages.success(self.request, 'اسکن در صف اجرا قرار گرفت!')
+        return response
 
 
 class ScanDetailView(LoginRequiredMixin, DetailView):
