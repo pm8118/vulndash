@@ -25,7 +25,6 @@ class ScanCreateView(LoginRequiredMixin, CreateView):
     form_class = ScanForm
     template_name = 'scanner/scan_create.html'
     success_url = reverse_lazy('scanner:scan_list')
-
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.status = 'pending'
